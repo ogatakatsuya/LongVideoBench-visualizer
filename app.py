@@ -35,6 +35,18 @@ try:
     duration_groups = ["All"] + sorted(df['duration_group'].unique().tolist())
     selected_duration = st.sidebar.selectbox("動画の長さ（秒）", duration_groups)
 
+    # 動画の実際の長さでフィルタ（スライダー）
+    min_duration = float(df['duration'].min())
+    max_duration = float(df['duration'].max())
+    duration_range = st.sidebar.slider(
+        "動画の長さ（実際の秒数）",
+        min_value=min_duration,
+        max_value=max_duration,
+        value=(min_duration, max_duration),
+        step=1.0,
+        format="%.1f秒"
+    )
+
     # フィルタリング
     filtered_df = df.copy()
     if selected_topic != "All":
@@ -43,6 +55,12 @@ try:
         filtered_df = filtered_df[filtered_df['question_category'] == selected_question_cat]
     if selected_duration != "All":
         filtered_df = filtered_df[filtered_df['duration_group'] == selected_duration]
+    
+    # 実際の動画の長さでフィルタ
+    filtered_df = filtered_df[
+        (filtered_df['duration'] >= duration_range[0]) & 
+        (filtered_df['duration'] <= duration_range[1])
+    ]
 
     st.sidebar.write(f"表示件数: {len(filtered_df)} / {len(df)}")
 
