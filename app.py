@@ -64,6 +64,28 @@ try:
 
     st.sidebar.write(f"表示件数: {len(filtered_df)} / {len(df)}")
 
+    # CSVダウンロード機能
+    if len(filtered_df) > 0:
+        # Video IDの重複を削除してCSV用データを作成
+        csv_df = filtered_df[['video_id', 'duration', 'topic_category']].drop_duplicates(subset=['video_id'])
+        csv_df = csv_df.rename(columns={
+            'video_id': 'Video ID',
+            'duration': 'Duration',
+            'topic_category': 'Category'
+        })
+
+        # CSVに変換
+        csv_data = csv_df.to_csv(index=False).encode('utf-8')
+
+        # ダウンロードボタン
+        st.sidebar.download_button(
+            label="📥 CSVダウンロード",
+            data=csv_data,
+            file_name="filtered_videos.csv",
+            mime="text/csv",
+            help=f"フィルタされた{len(csv_df)}件のユニーク動画をダウンロード"
+        )
+
     # 動画選択
     if len(filtered_df) > 0:
         video_options = [f"{row['video_id']} - {row['topic_category']}"
